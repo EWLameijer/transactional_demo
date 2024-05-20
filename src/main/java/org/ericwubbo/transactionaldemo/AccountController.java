@@ -49,7 +49,7 @@ public class AccountController {
         payer.addMoney(amount.negate());
         accountRepository.save(payer);
         receiver.addMoney(amount);
-        accountRepository.save(receiver); // of course, I could have used saveAll here, but to demonstrate transactional...
+        accountRepository.save(receiver); // of course, I could have used saveAll here, but to demonstrate @Transactional...
 
         return ResponseEntity.ok(List.of(payer, receiver));
     }
