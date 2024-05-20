@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
@@ -31,5 +32,25 @@ public class AccountController {
                         }
                 ).map(ResponseEntity::ok).
                 orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping
+    public ResponseEntity<List<Account>> transferMoney(@RequestBody TransferDto transfer) {
+        BigDecimal amount = transfer.amount();
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) return ResponseEntity.badRequest().build();
+        Optional<Account> possiblePayer = accountRepository.findById(transfer.payerId());
+        if (possiblePayer.isEmpty()) return ResponseEntity.notFound().build();
+        Account payer = possiblePayer.get();
+        if (payer.getAmount().compareTo(amount) <= 0) return ResponseEntity.badRequest().build();
+        Optional<Account> possibleReceiver = accountRepository.findById(transfer.receiverId());
+        if (possibleReceiver.isEmpty()) return ResponseEntity.notFound().build();
+        Account receiver = possibleReceiver.get();
+
+        payer.addMoney(amount.negate());
+        accountRepository.save(payer);
+        receiver.addMoney(amount);
+        accountRepository.save(receiver); // of course, I could have used saveAll here, but to demonstrate transactional...
+
+        return ResponseEntity.ok(List.of(payer, receiver));
     }
 }
