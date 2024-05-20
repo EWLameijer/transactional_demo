@@ -58,10 +58,14 @@ public class AccountController {
         if (possibleReceiver.isEmpty()) return ResponseEntity.notFound().build();
         Account receiver = possibleReceiver.get();
 
-        payer.addMoney(amount.negate());
-        accountRepository.save(payer);
-        receiver.addMoney(amount);
-        accountRepository.save(receiver); // of course, I could have used saveAll here, but to demonstrate @Transactional...
+        try {
+            payer.addMoney(amount.negate());
+            accountRepository.save(payer);
+            receiver.addMoney(amount);
+            accountRepository.save(receiver); // of course, I could have used saveAll here, but to demonstrate @Transactional...
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
 
         return ResponseEntity.ok(List.of(payer, receiver));
     }
