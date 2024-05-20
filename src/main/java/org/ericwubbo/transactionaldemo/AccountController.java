@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
-
 @RestController
 @RequiredArgsConstructor
 public class AccountController {
@@ -24,7 +22,7 @@ public class AccountController {
         return accountRepository.findAll();
     }
 
-    @RequestMapping(consumes = MediaType.TEXT_PLAIN_VALUE, method = PATCH, value = "{id}")
+    @PatchMapping(consumes = MediaType.TEXT_PLAIN_VALUE, value = "{id}")
     public ResponseEntity<Account> depositMoney(@PathVariable UUID id, @RequestBody String amountAsString) {
         var amount = new BigDecimal(amountAsString);
         if (amount.compareTo(BigDecimal.ZERO) <= 0) return ResponseEntity.badRequest().build();
