@@ -3,6 +3,7 @@ package org.ericwubbo.transactionaldemo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -44,6 +45,7 @@ public class AccountController {
                 orElse(ResponseEntity.notFound().build());
     }
 
+    @Transactional
     @PatchMapping
     public ResponseEntity<List<Account>> transferMoney(@RequestBody TransferDto transfer) {
         BigDecimal amount = transfer.amount();
