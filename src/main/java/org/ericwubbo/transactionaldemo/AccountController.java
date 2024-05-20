@@ -24,15 +24,14 @@ public class AccountController {
     }
 
     @RequestMapping(consumes = MediaType.TEXT_PLAIN_VALUE, method = PATCH, value = "{id}")
-    public ResponseEntity<Account> depositMoney(@PathVariable UUID id, @RequestBody String amountAsString) {
+    public ResponseEntity<Account> depositMoney(@PathVariable UUID id, @RequestBody String amountAsString) throws Exception {
         var amount = new BigDecimal(amountAsString);
         if (amount.compareTo(BigDecimal.ZERO) <= 0) return ResponseEntity.badRequest().build();
-        return accountRepository.findById(id).map(account -> {
-                            account.addMoney(amount);
-                            return accountRepository.save(account);
-                        }
-                ).map(ResponseEntity::ok).
-                orElse(ResponseEntity.notFound().build());
+        Optional<Account> possibleAccount = accountRepository.findById(id);
+        if (possibleAccount.isEmpty()) return ResponseEntity.notFound().build();
+        Account account = possibleAccount.get();
+        account.addMoney(amount);
+        return ResponseEntity.ok(accountRepository.save(account));
     }
 
     @PatchMapping("/block/{id}")
