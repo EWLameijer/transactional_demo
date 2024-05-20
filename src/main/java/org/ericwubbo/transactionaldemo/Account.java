@@ -22,8 +22,8 @@ public class Account {
 
     private boolean isBlocked = false;
 
-    public void addMoney(BigDecimal transfer) {
-        if (isBlocked) throw new IllegalStateException("You cannot transfer money to a blocked account");
+    public void addMoney(BigDecimal transfer) throws Exception {
+        if (isBlocked) throw new Exception("You cannot transfer money to a blocked account");
         amount = amount.add(transfer);
     }
 

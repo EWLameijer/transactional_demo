@@ -47,7 +47,8 @@ public class AccountController {
 
     @Transactional
     @PatchMapping
-    public ResponseEntity<List<Account>> transferMoney(@RequestBody TransferDto transfer) {
+    public ResponseEntity<List<Account>> transferMoney(@RequestBody TransferDto transfer) throws Exception {
+
         BigDecimal amount = transfer.amount();
         if (amount.compareTo(BigDecimal.ZERO) <= 0) return ResponseEntity.badRequest().build();
         Optional<Account> possiblePayer = accountRepository.findById(transfer.payerId());
@@ -62,7 +63,6 @@ public class AccountController {
         accountRepository.save(payer);
         receiver.addMoney(amount);
         accountRepository.save(receiver); // of course, I could have used saveAll here, but to demonstrate @Transactional...
-
         return ResponseEntity.ok(List.of(payer, receiver));
     }
 }
