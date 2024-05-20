@@ -3,7 +3,6 @@ package org.ericwubbo.transactionaldemo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -17,6 +16,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountRepository accountRepository;
+
+    private final AccountService accountService;
 
     @GetMapping
     public List<Account> getAll() {
@@ -45,7 +46,6 @@ public class AccountController {
                 orElse(ResponseEntity.notFound().build());
     }
 
-    @Transactional
     @PatchMapping
     public ResponseEntity<List<Account>> transferMoney(@RequestBody TransferDto transfer) {
         BigDecimal amount = transfer.amount();
@@ -58,10 +58,11 @@ public class AccountController {
         if (possibleReceiver.isEmpty()) return ResponseEntity.notFound().build();
         Account receiver = possibleReceiver.get();
 
-        payer.addMoney(amount.negate());
-        accountRepository.save(payer);
-        receiver.addMoney(amount);
-        accountRepository.save(receiver); // of course, I could have used saveAll here, but to demonstrate @Transactional...
+        try {
+            accountService.transfer(payer, receiver, amount);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
 
         return ResponseEntity.ok(List.of(payer, receiver));
     }
