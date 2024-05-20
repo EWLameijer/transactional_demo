@@ -1,6 +1,9 @@
 package org.ericwubbo.transactionaldemo;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,11 +20,18 @@ public class Account {
 
     private BigDecimal amount;
 
+    private boolean isBlocked = false;
+
     public void addMoney(BigDecimal transfer) {
+        if (isBlocked) throw new IllegalStateException("You cannot transfer money to a blocked account");
         amount = amount.add(transfer);
     }
 
     public Account(String amount) {
         this.amount = new BigDecimal(amount);
+    }
+
+    public void block() {
+        isBlocked = true;
     }
 }

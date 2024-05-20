@@ -34,6 +34,16 @@ public class AccountController {
                 orElse(ResponseEntity.notFound().build());
     }
 
+    @PatchMapping("/block/{id}")
+    public ResponseEntity<Account> blockAccount(@PathVariable UUID id) {
+        return accountRepository.findById(id).map(account -> {
+                            account.block();
+                            return accountRepository.save(account);
+                        }
+                ).map(ResponseEntity::ok).
+                orElse(ResponseEntity.notFound().build());
+    }
+
     @PatchMapping
     public ResponseEntity<List<Account>> transferMoney(@RequestBody TransferDto transfer) {
         BigDecimal amount = transfer.amount();
